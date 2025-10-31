@@ -126,6 +126,7 @@ def match_at_volume(orders, target_volume):
     bid_i = 0
     ask_i = 0
 
+    # Greedy match by price priority; keep it transparent.
     while traded < target_volume and bid_i < len(bids) and ask_i < len(asks):
         bid = bids[bid_i]
         ask = asks[ask_i]
@@ -183,7 +184,7 @@ def print_results(p_star, v_star, p_low, p_high, trades):
     print(f"Clearing volume: {v_star}")
 
     if p_star is None or v_star <= 0:
-        print("No trade \u2014 book didn\u2019t cross.")
+        print("No trade — book didn’t cross.")
         return
 
     if p_low is not None and p_high is not None and p_low != p_high:
@@ -196,7 +197,7 @@ def print_results(p_star, v_star, p_low, p_high, trades):
     if trades:
         print("\nMatched trades (uniform-price):")
         for bid_id, ask_id, qty in trades:
-            print(f"  bid {bid_id:>3}  \u2194  ask {ask_id:>3}  @ {p_star:.4f}  qty={qty}")
+            print(f"  bid {bid_id:>3}  ↔  ask {ask_id:>3}  @ {p_star:.4f}  qty={qty}")
     else:
         print("No individual trades matched; this should not happen with positive volume.")
 
@@ -212,7 +213,7 @@ def main():
     p_star, v_star, p_low, p_high = find_clearing_price(bids_levels, asks_levels)
 
     if p_star is None or v_star == 0:
-        print("\nNo trade \u2014 book didn\u2019t cross.")
+        print("\nNo trade — book didn’t cross.")
         return
 
     trades, traded = match_at_volume(orders, v_star)
