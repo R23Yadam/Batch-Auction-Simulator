@@ -53,7 +53,7 @@ class Benchmark:
 
         return {
             "orders_processed": orders_processed,
-            "orders_per_sec": int(orders_per_sec),
+            "orders_per_sec": round(orders_per_sec, 1),
             "latency_us_p50": round(p50, 2),
             "latency_us_p95": round(p95, 2),
             "latency_us_p99": round(p99, 2),

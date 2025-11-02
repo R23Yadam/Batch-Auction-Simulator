@@ -124,6 +124,33 @@ Run tests:
 pytest tests/ -v
 ```
 
+## Input Format
+
+Orders are provided as CSV with the following columns:
+- `timestamp`: Nanosecond timestamp
+- `order_id`: Unique order identifier
+- `type`: Order type (LIMIT, MARKET, IOC, CANCEL)
+- `side`: BUY or SELL (empty for CANCEL)
+- `price`: Limit price (empty for MARKET; for CANCEL, contains target order_id to cancel)
+- `qty`: Order quantity (empty for CANCEL)
+
+Example:
+```csv
+timestamp,order_id,type,side,price,qty
+0,1,LIMIT,BUY,99.98,87
+9035,2,CANCEL,,1,
+12946,3,LIMIT,SELL,100.04,90
+```
+
+## Outputs
+
+All output files are written to the specified `--out` directory:
+
+- **`trades.csv`**: Executed trades with columns `buyer_id`, `seller_id`, `price`, `qty`, `taker_side`
+- **`quotes.csv`**: Market quotes (batch mode: pre-auction best bid/ask; continuous mode: snapshots after each order)
+- **`bench.json`**: Benchmark results including `orders_per_sec`, latency percentiles (p50/p95/p99), CPU and Python version
+- **`tearsheet.md`**: Trade quality metrics (VWAP, volume, trade count)
+
 ## File Layout
 
 ```
@@ -153,8 +180,8 @@ project/
 1. **Aggregate Orders**: Group by price level
 2. **Compute Curves**: Build cumulative demand and supply curves
 3. **Find Max Volume**: Identify price(s) that maximize matched volume
-4. **Tie-Break**: Select price closest to pre-auction mid, or midpoint of tie range
-5. **Allocate Fills**: Execute trades at uniform clearing price, FIFO within each side
+4. **Tie-Break**: Let mid = (best_bid + best_ask)/2 from the pre-auction snapshot; choose the price closest to mid; if still tied, pick the lowest such price; if no pre_mid available, use the midpoint of the tie band rounded to tick
+5. **Allocate Fills**: Execute trades at uniform clearing price, FIFO (price-time priority) within each side
 
 ## Continuous Matching
 

@@ -36,6 +36,26 @@ def compute_slippage(trades: List[dict], reference_price: float) -> List[float]:
     return [t["price"] - reference_price for t in trades]
 
 
+def signed_slippage_ticks(trades: List[dict], reference_price: float, tick: float = 0.01) -> List[float]:
+    """
+    Compute signed slippage in ticks.
+    
+    Args:
+        trades: List of trades with 'price', 'taker_side'.
+        reference_price: Reference price (e.g., VWAP or mid).
+        tick: Tick size (default 0.01).
+    
+    Returns:
+        List of signed slippage values: ((price - ref)/tick) * (+1 for BUY, -1 for SELL).
+    """
+    result = []
+    for t in trades:
+        raw_slippage = (t["price"] - reference_price) / tick
+        sign = 1 if t.get("taker_side") == "BUY" else -1
+        result.append(raw_slippage * sign)
+    return result
+
+
 def load_trades(path: str) -> List[dict]:
     """Load trades from CSV."""
     trades = []
@@ -47,6 +67,7 @@ def load_trades(path: str) -> List[dict]:
                 "seller_id": int(row["seller_id"]),
                 "price": float(row["price"]),
                 "qty": int(row["qty"]),
+                "taker_side": row.get("taker_side", "BUY"),
             })
     return trades
 
@@ -72,6 +93,13 @@ def compare_modes(batch_trades: List[dict], cont_trades: List[dict]) -> str:
     batch_vol = sum(t["qty"] for t in batch_trades)
     cont_vol = sum(t["qty"] for t in cont_trades)
 
+    # Compute signed slippage (using VWAP as reference)
+    batch_slippage_ticks = signed_slippage_ticks(batch_trades, batch_vwap) if batch_vwap and batch_trades else []
+    cont_slippage_ticks = signed_slippage_ticks(cont_trades, cont_vwap) if cont_vwap and cont_trades else []
+    
+    avg_batch_slippage = sum(batch_slippage_ticks) / len(batch_slippage_ticks) if batch_slippage_ticks else 0.0
+    avg_cont_slippage = sum(cont_slippage_ticks) / len(cont_slippage_ticks) if cont_slippage_ticks else 0.0
+
     lines = [
         "# Batch vs Continuous Comparison",
         "",
@@ -80,6 +108,7 @@ def compare_modes(batch_trades: List[dict], cont_trades: List[dict]) -> str:
         f"| Trades | {len(batch_trades)} | {len(cont_trades)} |",
         f"| Volume | {batch_vol} | {cont_vol} |",
         f"| VWAP | {batch_vwap:.4f} | {cont_vwap:.4f} |",
+        f"| Avg signed slippage (ticks) | {avg_batch_slippage:.2f} | {avg_cont_slippage:.2f} |",
         "",
     ]
 

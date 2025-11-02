@@ -85,6 +85,7 @@ class OrderBook:
                         "seller_id": ask_id,
                         "price": best_ask,
                         "qty": trade_qty,
+                        "taker_side": "BUY",
                     })
                     remaining -= trade_qty
                     ask_qty -= trade_qty
@@ -123,6 +124,7 @@ class OrderBook:
                         "seller_id": order_id,
                         "price": best_bid,
                         "qty": trade_qty,
+                        "taker_side": "SELL",
                     })
                     remaining -= trade_qty
                     bid_qty -= trade_qty
@@ -168,6 +170,7 @@ class OrderBook:
                         "seller_id": ask_id,
                         "price": best_ask,
                         "qty": trade_qty,
+                        "taker_side": "BUY",
                     })
                     remaining -= trade_qty
                     ask_qty -= trade_qty
@@ -194,6 +197,7 @@ class OrderBook:
                         "seller_id": order_id,
                         "price": best_bid,
                         "qty": trade_qty,
+                        "taker_side": "SELL",
                     })
                     remaining -= trade_qty
                     bid_qty -= trade_qty
@@ -233,6 +237,7 @@ class OrderBook:
                         "seller_id": ask_id,
                         "price": best_ask,
                         "qty": trade_qty,
+                        "taker_side": "BUY",
                     })
                     remaining -= trade_qty
                     ask_qty -= trade_qty
@@ -261,6 +266,7 @@ class OrderBook:
                         "seller_id": order_id,
                         "price": best_bid,
                         "qty": trade_qty,
+                        "taker_side": "SELL",
                     })
                     remaining -= trade_qty
                     bid_qty -= trade_qty

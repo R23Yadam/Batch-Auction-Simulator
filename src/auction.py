@@ -4,17 +4,18 @@ from typing import List, Dict, Optional, Tuple
 from collections import deque
 
 
-def clear_batch(orders: List[dict], pre_mid: Optional[float] = None) -> Tuple[Optional[float], List[dict]]:
+def clear_batch(orders: List[dict], pre_mid: Optional[float] = None, tick: float = 0.01) -> Tuple[Optional[float], List[dict]]:
     """
     Find uniform clearing price, allocate fills in FIFO order.
 
     Args:
-        orders: List of dicts with 'order_id', 'side', 'price', 'qty', 'type'.
+        orders: List of dicts with 'order_id', 'side', 'price', 'qty', 'type', 'timestamp'.
                 MARKET orders treated as limit at extreme prices.
         pre_mid: Pre-auction mid for tie-breaking (optional).
+        tick: Tick size for rounding midpoint (default 0.01).
 
     Returns:
-        (clearing_price, fills) where fills is list of {buyer_id, seller_id, price, qty}.
+        (clearing_price, fills) where fills is list of {buyer_id, seller_id, price, qty, taker_side}.
     """
     # Separate bids and asks
     bids = []
@@ -31,19 +32,20 @@ def clear_batch(orders: List[dict], pre_mid: Optional[float] = None) -> Tuple[Op
         price = o.get("price")
         qty = o["qty"]
         order_id = o["order_id"]
+        timestamp = o.get("timestamp", 0)
 
         if o["type"] == "MARKET":
             # MARKET buy: willing to pay infinity; MARKET sell: willing to accept 0
             price = 1e9 if side == "BUY" else 0.0
 
         if side == "BUY":
-            bids.append({"order_id": order_id, "price": price, "qty": qty})
+            bids.append({"order_id": order_id, "price": price, "qty": qty, "timestamp": timestamp})
         else:
-            asks.append({"order_id": order_id, "price": price, "qty": qty})
+            asks.append({"order_id": order_id, "price": price, "qty": qty, "timestamp": timestamp})
 
-    # Sort bids descending, asks ascending (price-time FIFO within same price)
-    bids.sort(key=lambda x: (-x["price"], x["order_id"]))
-    asks.sort(key=lambda x: (x["price"], x["order_id"]))
+    # Sort bids descending by price, then by timestamp, then by order_id (price-time priority)
+    bids.sort(key=lambda x: (-x["price"], x["timestamp"], x["order_id"]))
+    asks.sort(key=lambda x: (x["price"], x["timestamp"], x["order_id"]))
 
     # Build aggregate levels
     bid_levels = {}
@@ -76,14 +78,20 @@ def clear_batch(orders: List[dict], pre_mid: Optional[float] = None) -> Tuple[Op
     if best_volume == 0:
         return None, []
 
-    # Tie-break: closest to pre_mid, then midpoint
+    # Tie-break: closest to pre_mid (if tied, pick lowest); if no pre_mid, use midpoint rounded to tick
     if len(winners) == 1:
         clearing_price = winners[0]
     else:
         if pre_mid is not None:
-            clearing_price = min(winners, key=lambda p: abs(p - pre_mid))
+            # Find minimum distance to pre_mid
+            min_dist = min(abs(p - pre_mid) for p in winners)
+            # Among those with minimum distance, pick the lowest price
+            closest = [p for p in winners if abs(p - pre_mid) == min_dist]
+            clearing_price = min(closest)
         else:
-            clearing_price = (winners[0] + winners[-1]) / 2.0
+            # No pre_mid: use midpoint of tie band rounded to tick
+            midpoint = (winners[0] + winners[-1]) / 2.0
+            clearing_price = round(midpoint / tick) * tick
 
     # Allocate fills at clearing_price, FIFO
     fills = _allocate_fills(bids, asks, clearing_price, best_volume)
@@ -120,6 +128,7 @@ def _allocate_fills(bids: List[dict], asks: List[dict], price: float, target_vol
             "seller_id": valid_asks[ask_idx]["order_id"],
             "price": price,
             "qty": qty,
+            "taker_side": "BUY",  # Batch convention: consistent taker_side
         })
         bid_rem[bid_idx] -= qty
         ask_rem[ask_idx] -= qty
