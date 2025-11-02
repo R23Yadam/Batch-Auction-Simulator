@@ -40,6 +40,75 @@ make benchmark
 # Compare modes
 make compare
 ```
+## Sample Output (deterministic, seed=7)
+
+### Batch vs Continuous (n=2000, interval=1000 ms)
+<!-- Generated via: python -m src.cli compare --in samples/orders_small.csv --interval 1000 -->
+```text
+# Batch vs Continuous Comparison
+
+| Metric | Batch | Continuous |
+| --- | --- | --- |
+| Trades | 955 | 1421 |
+| Volume | 24477 | 35624 |
+| VWAP | 100.3800 | 100.3593 |
+| Avg signed slippage (ticks) | 0.00 | 5.04 |
+```
+
+### First trades (batch)
+```csv
+buyer_id,seller_id,price,qty,taker_side
+35,13,100.38,37,BUY
+35,30,100.38,15,BUY
+69,30,100.38,46,BUY
+119,68,100.38,14,BUY
+177,68,100.38,57,BUY
+177,91,100.38,15,BUY
+201,91,100.38,32,BUY
+201,110,100.38,31,BUY
+222,110,100.38,9,BUY
+222,117,100.38,36,BUY
+```
+
+### First trades (continuous)
+```csv
+buyer_id,seller_id,price,qty,taker_side
+2,1,99.96,9,BUY
+3,1,99.96,4,BUY
+9,8,99.99,66,BUY
+12,8,99.99,2,BUY
+12,13,99.99,6,SELL
+5,13,99.98,14,SELL
+6,13,99.91,8,SELL
+17,4,100.0,23,BUY
+22,4,100.0,15,BUY
+22,21,100.02,27,BUY
+```
+
+### Benchmark (batch)
+```json
+{
+  "orders_processed": 2000,
+  "orders_per_sec": 441960.4,
+  "latency_us_p50": 1.2,
+  "latency_us_p95": 1.2,
+  "latency_us_p99": 1.2,
+  "mode": "batch",
+  "interval_ms": 1000,
+  "cpu": "arm",
+  "python": "3.9.6"
+}
+```
+
+```
+
+
+
+
+
+
+
+
 
 ## CLI Commands
 
