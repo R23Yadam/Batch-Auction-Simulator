@@ -12,6 +12,35 @@ from src.auction import clear_batch
 from src.gen import generate_orders
 from src.bench import Benchmark
 from src.metrics import load_trades, load_quotes, compute_vwap, compare_modes
+from typing import Tuple, Optional
+
+
+def _pre_auction_snapshot(batch_orders: List[dict]) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    """
+    Compute pre-auction best bid/ask/mid from batch orders.
+    
+    Returns:
+        (best_bid, best_ask, pre_mid) or (None, None, None) if insufficient data.
+    """
+    bid_prices = []
+    ask_prices = []
+    
+    for o in batch_orders:
+        if o["type"] in ["LIMIT", "IOC"] and o.get("price") is not None:
+            if o["side"] == "BUY":
+                bid_prices.append(o["price"])
+            elif o["side"] == "SELL":
+                ask_prices.append(o["price"])
+    
+    best_bid = max(bid_prices) if bid_prices else None
+    best_ask = min(ask_prices) if ask_prices else None
+    
+    if best_bid is not None and best_ask is not None:
+        pre_mid = (best_bid + best_ask) / 2.0
+    else:
+        pre_mid = None
+    
+    return best_bid, best_ask, pre_mid
 
 
 def cmd_gen(args):
@@ -180,15 +209,22 @@ def _simulate_batch(orders: List[dict], interval_ms: int, out_dir: str):
 
     for batch_id in sorted(batches.keys()):
         batch_orders = batches[batch_id]
-        clearing_price, fills = clear_batch(batch_orders, pre_mid=100.0)
+        
+        # Compute pre-auction snapshot
+        best_bid, best_ask, pre_mid = _pre_auction_snapshot(batch_orders)
+        
+        # Clear batch with computed pre_mid
+        clearing_price, fills = clear_batch(batch_orders, pre_mid=pre_mid, tick=0.01)
 
-        if clearing_price is not None:
-            all_quotes.append({"bid": clearing_price, "ask": clearing_price})
-            all_trades.extend(fills)
+        # Log pre-auction quote (not clearing price)
+        if best_bid is not None and best_ask is not None:
+            all_quotes.append({"bid": best_bid, "ask": best_ask})
+        
+        all_trades.extend(fills)
 
     # Write trades
     with open(os.path.join(out_dir, "trades.csv"), "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty"])
+        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty", "taker_side"])
         writer.writeheader()
         writer.writerows(all_trades)
 
@@ -217,7 +253,7 @@ def _simulate_continuous(orders: List[dict], out_dir: str):
 
     # Write trades
     with open(os.path.join(out_dir, "trades.csv"), "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty"])
+        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty", "taker_side"])
         writer.writeheader()
         writer.writerows(book.trades)
 
@@ -243,8 +279,12 @@ def _benchmark_batch(orders: List[dict], interval_ms: int, out_dir: str, bench: 
 
     for batch_id in sorted(batches.keys()):
         batch_orders = batches[batch_id]
+        
+        # Compute pre-auction snapshot
+        best_bid, best_ask, pre_mid = _pre_auction_snapshot(batch_orders)
+        
         t0 = time.perf_counter()
-        clearing_price, fills = clear_batch(batch_orders, pre_mid=100.0)
+        clearing_price, fills = clear_batch(batch_orders, pre_mid=pre_mid, tick=0.01)
         t1 = time.perf_counter()
 
         for _ in batch_orders:
@@ -254,7 +294,7 @@ def _benchmark_batch(orders: List[dict], interval_ms: int, out_dir: str, bench: 
 
     # Write trades
     with open(os.path.join(out_dir, "trades.csv"), "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty"])
+        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty", "taker_side"])
         writer.writeheader()
         writer.writerows(all_trades)
 
@@ -275,7 +315,7 @@ def _benchmark_continuous(orders: List[dict], out_dir: str, bench: Benchmark):
 
     # Write trades
     with open(os.path.join(out_dir, "trades.csv"), "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty"])
+        writer = csv.DictWriter(f, fieldnames=["buyer_id", "seller_id", "price", "qty", "taker_side"])
         writer.writeheader()
         writer.writerows(book.trades)
 
