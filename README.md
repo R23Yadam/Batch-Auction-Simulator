@@ -176,4 +176,11 @@ MIT License - see LICENSE file
 
 ## Author
 
-Riley Adam (2025)
+## How it clears
+1. Aggregate entered orders into bid and ask volume per price level.
+2. For every observed price, compute cumulative demand (bids >= price) and cumulative supply (asks <= price).
+3. Pick the price band that delivers the highest executable volume; if multiple prices tie, use the midpoint of the lowest and highest winning levels as the clearing price.
+4. Sort bids high-to-low and asks low-to-high, then greedily match them at the single clearing price until the target volume is traded.
+
+## Why I built this
+I’m interested in market microstructure and auction theory. I wanted a minimal, transparent simulator that finds a single clearing price and shows exactly how trades match. This CLI focuses on correctness and readability (pure Python, single file) so I can extend it into variations like pro-rata/fill rules, tick sizes, and shock tests.
