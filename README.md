@@ -1,11 +1,11 @@
 
 <p align="left">
   <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-informational"></a> 
-  [![tests](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml)
-
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-blue">
   <img alt="Platform" src="https://img.shields.io/badge/OS-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey">
   <a href="https://github.com/R23Yadam/Batch-Auction-Simulator/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/R23Yadam/Batch-Auction-Simulator?style=social"></a>
+[![tests](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml)
+
 </p>
 
 
