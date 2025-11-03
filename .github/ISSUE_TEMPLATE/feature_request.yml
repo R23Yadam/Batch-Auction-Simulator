@@ -1,0 +1,20 @@
+name: Feature request
+description: Propose an enhancement
+labels: ["enhancement"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: e.g., add pro-rata allocation option
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / value
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: High-level idea, flags, or CLI changes
