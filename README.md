@@ -2,6 +2,15 @@
 
 High-performance order book simulator with batch auction and continuous matching modes. Features deterministic order generation, comprehensive benchmarking, and trade quality metrics.
 
+[![release](https://img.shields.io/github/v/release/R23Yadam/Batch-Auction-Simulator)](../../releases)
+
+> **Reproduce the sample outputs:**
+```bash
+python -m src.cli gen --n 2000 --seed 7 > samples/orders_small.csv
+python -m src.cli compare --in samples/orders_small.csv --interval 1000
+python -m src.cli benchmark --in samples/orders_small.csv --mode batch --interval 1000 --out out_bench/
+```
+
 ## Features
 
 - **Price-Time Priority**: FIFO queues per price level
@@ -35,6 +44,8 @@ make compare
 ```
 
 ## CLI Commands
+
+**CLI:** [gen](#generate-orders) · [simulate](#simulate-batch-mode) · [benchmark](#benchmark) · [compare](#compare-modes) · [metrics](#compute-metrics)
 
 ### Generate Orders
 
