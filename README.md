@@ -1,3 +1,5 @@
+[![tests](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/R23Yadam/Batch-Auction-Simulator/actions/workflows/ci.yml)
+
 <p align="left">
   <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-informational"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-blue">
