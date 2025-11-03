@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a problem or failing case
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the issue.
+      placeholder: e.g., batch mode ties but picks wrong price
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Exact CLI commands + inputs
+      value: |
+        ```
+        python -m src.cli gen --n 2000 --seed 7 > orders.csv
+        python -m src.cli simulate --in orders.csv --mode batch --interval 1000 --out out/
+        ```
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Python: 
+        - Commit/Tag:
