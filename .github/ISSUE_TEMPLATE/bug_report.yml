@@ -16,7 +16,7 @@ body:
       label: Reproduction
       description: Exact CLI commands + inputs
       value: |
-        ```bash
+        ```
         python -m src.cli gen --n 2000 --seed 7 > orders.csv
         python -m src.cli simulate --in orders.csv --mode batch --interval 1000 --out out/
         ```
@@ -30,6 +30,5 @@ body:
       label: Environment
       value: |
         - OS:
-        - Python:
+        - Python: 
         - Commit/Tag:
-

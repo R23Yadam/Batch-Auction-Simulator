@@ -1,0 +1,11 @@
+{
+  "orders_processed": 2000,
+  "orders_per_sec": 441960.4,
+  "latency_us_p50": 1.2,
+  "latency_us_p95": 1.2,
+  "latency_us_p99": 1.2,
+  "mode": "batch",
+  "interval_ms": 1000,
+  "cpu": "arm",
+  "python": "3.9.6"
+}
