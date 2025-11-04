@@ -30,6 +30,18 @@ python -m src.cli benchmark --in samples/orders_small.csv --mode batch --interva
 - **Metrics**: Mid, VWAP, signed slippage, batch vs continuous comparison
 - **Deterministic**: Seeded RNG produces byte-identical CSV output
 
+## Demo
+
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/0a6634fd-7de8-4c8a-81f1-c535137d20c5"
+         width="720" controls playsinline muted>
+    <a href="https://github.com/user-attachments/assets/0a6634fd-7de8-4c8a-81f1-c535137d20c5">
+      Watch the demo video
+    </a>
+  </video>
+</p>
+
+
 ## Quick Start
 
 ```bash
