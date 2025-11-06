@@ -34,7 +34,11 @@ python -m src.cli benchmark --in samples/orders_small.csv --mode batch --interva
 
 
 
-https://github.com/user-attachments/assets/321a2d2c-a52a-4299-866f-040d0896dfa1
+https://github.com/user-attachments/assets/d758a090-1839-4e9a-b462-822efaaa0eac
+
+
+
+
 
 
 
